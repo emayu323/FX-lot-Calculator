@@ -10,11 +10,11 @@ export default function Calculator() {
     const [pairType, setPairType] = useState('jpy');
     const [usdjpy, setUsdjpy] = useState('');
     const [pips, setPips] = useState('');
-    
+
     // Result State
     const [resultLot, setResultLot] = useState('0.00');
     const [riskAmount, setRiskAmount] = useState(0);
-    
+
     // UI State
     const [loading, setLoading] = useState(false);
     const [fetchStatus, setFetchStatus] = useState('');
@@ -28,7 +28,7 @@ export default function Calculator() {
         const savedLotUnit = localStorage.getItem('fx_lotUnit');
         const savedPairType = localStorage.getItem('fx_pairType');
         const savedUsdjpy = localStorage.getItem('fx_usdjpy');
-        
+
         if (savedBalance) setBalance(savedBalance);
         if (savedRisk) setRisk(savedRisk);
         if (savedLotUnit) setLotUnit(Number(savedLotUnit));
@@ -44,7 +44,7 @@ export default function Calculator() {
         localStorage.setItem('fx_lotUnit', lotUnit);
         localStorage.setItem('fx_pairType', pairType);
         localStorage.setItem('fx_usdjpy', usdjpy || '');
-        
+
         calculate();
     }, [balance, risk, lotUnit, pairType, usdjpy, pips, mounted]);
 
@@ -63,9 +63,9 @@ export default function Calculator() {
             if (pairType === 'jpy') {
                 valuePerPipPerLot = unit * 0.01;
             } else {
-                 if (rate > 0) {
+                if (rate > 0) {
                     valuePerPipPerLot = unit * 0.0001 * rate;
-                 }
+                }
             }
 
             if (valuePerPipPerLot > 0) {
@@ -84,7 +84,7 @@ export default function Calculator() {
 
     const fetchRate = async () => {
         setLoading(true);
-        setFetchStatus('Checking...');
+        setFetchStatus('確認中...');
         try {
             const res = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
             if (!res.ok) throw new Error('Network error');
@@ -92,14 +92,14 @@ export default function Calculator() {
             const rate = data.rates.JPY;
             if (rate) {
                 setUsdjpy(rate.toFixed(3));
-                const date = new Date(data.date).toLocaleDateString();
-                setFetchStatus(`Success: ${rate} (${date})`);
+                const date = new Date(data.date).toLocaleDateString('ja-JP');
+                setFetchStatus(`取得成功: ${rate} (${date})`);
             } else {
                 throw new Error('Rate not found');
             }
         } catch (e) {
             console.error(e);
-            setFetchStatus('Failed. Enter manually.');
+            setFetchStatus('取得失敗。手動入力してください。');
         } finally {
             setLoading(false);
         }
@@ -109,105 +109,105 @@ export default function Calculator() {
 
     return (
         <div className="card">
-            <h1 className="title">FX Lot Calculator</h1>
+            <h1 className="title">FX ロット計算機</h1>
 
             <div className="form-group">
-                <label htmlFor="balance">Account Balance (JPY)</label>
-                <input 
-                    type="number" 
-                    id="balance" 
-                    value={balance} 
+                <label htmlFor="balance">口座資産 (円)</label>
+                <input
+                    type="number"
+                    id="balance"
+                    value={balance}
                     onChange={(e) => setBalance(e.target.value)}
-                    placeholder="e.g. 1000000"
+                    placeholder="例: 1000000"
                     className="input-field"
                 />
             </div>
 
             <div className="form-group">
-                <label htmlFor="risk">Risk (%)</label>
-                <input 
-                    type="number" 
-                    id="risk" 
-                    value={risk} 
+                <label htmlFor="risk">許容リスク (%)</label>
+                <input
+                    type="number"
+                    id="risk"
+                    value={risk}
                     onChange={(e) => setRisk(e.target.value)}
-                    placeholder="e.g. 2.0"
+                    placeholder="例: 2.0"
                     step="0.1"
                     className="input-field"
                 />
             </div>
 
             <div className="form-group">
-                <label htmlFor="lotUnit">Currency per Lot</label>
-                <select 
-                    id="lotUnit" 
-                    value={lotUnit} 
+                <label htmlFor="lotUnit">1ロットの通貨数</label>
+                <select
+                    id="lotUnit"
+                    value={lotUnit}
                     onChange={(e) => setLotUnit(Number(e.target.value))}
                     className="select-field"
                 >
-                    <option value={10000}>10,000 (Standard/Japan)</option>
-                    <option value={100000}>100,000 (Global/XM)</option>
-                    <option value={1000}>1,000 (Micro)</option>
+                    <option value={10000}>10,000 (国内標準)</option>
+                    <option value={100000}>100,000 (海外/XMなど)</option>
+                    <option value={1000}>1,000 (マイクロ)</option>
                 </select>
             </div>
 
             <div className="divider"></div>
 
             <div className="form-group">
-                <label htmlFor="pairType">Currency Pair Type</label>
-                <select 
-                    id="pairType" 
-                    value={pairType} 
+                <label htmlFor="pairType">通貨ペアの種類</label>
+                <select
+                    id="pairType"
+                    value={pairType}
                     onChange={(e) => setPairType(e.target.value)}
                     className="select-field"
                 >
-                    <option value="jpy">Cross JPY (USD/JPY, etc.)</option>
-                    <option value="usd">Dollar Straight (EUR/USD, etc.)</option>
+                    <option value="jpy">クロス円 (USD/JPY, EUR/JPYなど)</option>
+                    <option value="usd">ドルストレート (EUR/USD, GBP/USDなど)</option>
                 </select>
             </div>
 
             {pairType === 'usd' && (
                 <div className="form-group fade-in">
-                    <label htmlFor="usdjpy">USD/JPY Rate</label>
+                    <label htmlFor="usdjpy">ドル円レート (USD/JPY)</label>
                     <div className="rate-input-group">
-                        <input 
-                            type="number" 
-                            id="usdjpy" 
-                            value={usdjpy} 
+                        <input
+                            type="number"
+                            id="usdjpy"
+                            value={usdjpy}
                             onChange={(e) => setUsdjpy(e.target.value)}
-                            placeholder="Current Rate"
+                            placeholder="現在のレート"
                             step="0.01"
                             className="input-field"
                         />
-                        <button 
-                            type="button" 
-                            onClick={fetchRate} 
+                        <button
+                            type="button"
+                            onClick={fetchRate}
                             disabled={loading}
                             className="btn-fetch"
                         >
-                            {loading ? '...' : 'Auto Fetch'}
+                            {loading ? '...' : '自動取得'}
                         </button>
                     </div>
-                    {fetchStatus && <div className={`status-text ${fetchStatus.includes('Failed') ? 'error' : 'success'}`}>{fetchStatus}</div>}
+                    {fetchStatus && <div className={`status-text ${fetchStatus.includes('失敗') ? 'error' : 'success'}`}>{fetchStatus}</div>}
                 </div>
             )}
 
             <div className="form-group highlight-group">
-                <label htmlFor="pips">Stop Loss (Pips)</label>
-                <input 
-                    type="number" 
-                    id="pips" 
-                    value={pips} 
+                <label htmlFor="pips">損切り幅 (Pips)</label>
+                <input
+                    type="number"
+                    id="pips"
+                    value={pips}
                     onChange={(e) => setPips(e.target.value)}
-                    placeholder="e.g. 20"
+                    placeholder="例: 20"
                     className="input-field highlight-input"
                 />
             </div>
 
             <div className="result-card">
-                <div className="result-label">Recommended Lot Size</div>
+                <div className="result-label">適正ロット数</div>
                 <div className="result-value">{resultLot}</div>
                 <div className="risk-display">
-                    Risk Amount: <span>{riskAmount.toLocaleString()}</span> JPY
+                    損失許容額: <span>{riskAmount.toLocaleString()}</span> 円
                 </div>
             </div>
         </div>
