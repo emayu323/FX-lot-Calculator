@@ -19,6 +19,7 @@ export default function Calculator() {
     const [loading, setLoading] = useState(false);
     const [fetchStatus, setFetchStatus] = useState('');
     const [mounted, setMounted] = useState(false);
+    const [showSettings, setShowSettings] = useState(false);
 
     // Initial Load
     useEffect(() => {
@@ -109,46 +110,59 @@ export default function Calculator() {
 
     return (
         <div className="card">
-            <h1 className="title">FX ロット計算機</h1>
-
-            <div className="form-group">
-                <label htmlFor="balance">口座資産 (円)</label>
-                <input
-                    type="number"
-                    id="balance"
-                    value={balance}
-                    onChange={(e) => setBalance(e.target.value)}
-                    placeholder="例: 1000000"
-                    className="input-field"
-                />
-            </div>
-
-            <div className="form-group">
-                <label htmlFor="risk">許容リスク (%)</label>
-                <input
-                    type="number"
-                    id="risk"
-                    value={risk}
-                    onChange={(e) => setRisk(e.target.value)}
-                    placeholder="例: 2.0"
-                    step="0.1"
-                    className="input-field"
-                />
-            </div>
-
-            <div className="form-group">
-                <label htmlFor="lotUnit">1ロットの通貨数</label>
-                <select
-                    id="lotUnit"
-                    value={lotUnit}
-                    onChange={(e) => setLotUnit(Number(e.target.value))}
-                    className="select-field"
+            <div className="header-row">
+                <h1 className="title" style={{ marginBottom: 0 }}>FX ロット計算機</h1>
+                <button
+                    onClick={() => setShowSettings(!showSettings)}
+                    className="btn-settings"
+                    aria-label="設定"
                 >
-                    <option value={10000}>10,000 (国内標準)</option>
-                    <option value={100000}>100,000 (海外/XMなど)</option>
-                    <option value={1000}>1,000 (マイクロ)</option>
-                </select>
+                    {showSettings ? '閉じる' : '⚙️ 設定'}
+                </button>
             </div>
+
+            {showSettings && (
+                <div className="settings-panel fade-in">
+                    <div className="form-group">
+                        <label htmlFor="balance">口座資産 (円)</label>
+                        <input
+                            type="number"
+                            id="balance"
+                            value={balance}
+                            onChange={(e) => setBalance(e.target.value)}
+                            placeholder="例: 1000000"
+                            className="input-field"
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label htmlFor="risk">許容リスク (%)</label>
+                        <input
+                            type="number"
+                            id="risk"
+                            value={risk}
+                            onChange={(e) => setRisk(e.target.value)}
+                            placeholder="例: 2.0"
+                            step="0.1"
+                            className="input-field"
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label htmlFor="lotUnit">1ロットの通貨数</label>
+                        <select
+                            id="lotUnit"
+                            value={lotUnit}
+                            onChange={(e) => setLotUnit(Number(e.target.value))}
+                            className="select-field"
+                        >
+                            <option value={10000}>10,000 (国内標準)</option>
+                            <option value={100000}>100,000 (海外/XMなど)</option>
+                            <option value={1000}>1,000 (マイクロ)</option>
+                        </select>
+                    </div>
+                </div>
+            )}
 
             <div className="divider"></div>
 
