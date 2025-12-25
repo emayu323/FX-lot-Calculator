@@ -83,11 +83,11 @@ export default function Calculator() {
         }
     };
 
-    const fetchRate = async () => {
+    const fetchRate = async (baseCurrency = 'USD') => {
         setLoading(true);
         setFetchStatus('確認中...');
         try {
-            const res = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+            const res = await fetch(`https://api.exchangerate-api.com/v4/latest/${baseCurrency}`);
             if (!res.ok) throw new Error('Network error');
             const data = await res.json();
             const rate = data.rates.JPY;
@@ -100,7 +100,7 @@ export default function Calculator() {
             }
         } catch (e) {
             console.error(e);
-            setFetchStatus('取得失敗。手動入力してください。');
+            setFetchStatus('取得失敗。');
         } finally {
             setLoading(false);
         }
@@ -171,39 +171,23 @@ export default function Calculator() {
                 <select
                     id="pairType"
                     value={pairType}
-                    onChange={(e) => setPairType(e.target.value)}
+                    onChange={(e) => {
+                        const val = e.target.value;
+                        setPairType(val);
+                        if (val === 'usd') fetchRate('USD');
+                        if (val === 'aud') fetchRate('AUD');
+                        if (val === 'gold') fetchRate('USD');
+                    }}
                     className="select-field"
                 >
-                    <option value="jpy">クロス円 (USD/JPY, EUR/JPYなど)</option>
-                    <option value="usd">ドルストレート (EUR/USD, GBP/USDなど)</option>
+                    <option value="jpy">JPY</option>
+                    <option value="usd">USD</option>
+                    <option value="aud">AUD</option>
+                    <option value="gold">GOLD</option>
                 </select>
             </div>
 
-            {pairType === 'usd' && (
-                <div className="form-group fade-in">
-                    <label htmlFor="usdjpy">ドル円レート (USD/JPY)</label>
-                    <div className="rate-input-group">
-                        <input
-                            type="number"
-                            id="usdjpy"
-                            value={usdjpy}
-                            onChange={(e) => setUsdjpy(e.target.value)}
-                            placeholder="現在のレート"
-                            step="0.01"
-                            className="input-field"
-                        />
-                        <button
-                            type="button"
-                            onClick={fetchRate}
-                            disabled={loading}
-                            className="btn-fetch"
-                        >
-                            {loading ? '...' : '自動取得'}
-                        </button>
-                    </div>
-                    {fetchStatus && <div className={`status-text ${fetchStatus.includes('失敗') ? 'error' : 'success'}`}>{fetchStatus}</div>}
-                </div>
-            )}
+
 
             <div className="form-group highlight-group">
                 <label htmlFor="pips">損切り幅 (Pips)</label>
